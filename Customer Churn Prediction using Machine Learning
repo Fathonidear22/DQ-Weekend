@@ -1,0 +1,662 @@
+#Importing General packages
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.metrics import confusion_matrix, classification_report
+import pickle
+from pathlib import Path
+
+In [1]: #Importing General packages
+        import pandas as pd
+        import numpy as np
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        from sklearn.preprocessing import LabelEncoder
+        from sklearn.model_selection import train_test_split
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.ensemble import RandomForestClassifier
+        from sklearn.ensemble import GradientBoostingClassifier
+        from sklearn.metrics import confusion_matrix, classification_report
+        import pickle
+        from pathlib import Path
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+  
+  #import dataset
+df_load =  pd.read_csv('https://dqlab-dataset.s3-ap-southeast-1.amazonaws.com/dqlab_telco_final.csv')
+
+#Tampilkan bentuk dari dataset
+print(df_load.shape)
+
+#Tampilkan 5 data teratas
+print(df_load.head())
+
+#Tampilkan jumlah ID yang unik
+print(df_load.customerID.nunique())
+
+In [1]: #import dataset
+        df_load =  pd.read_csv('https://dqlab-dataset.s3-ap-southeast-1.amazonaws.com/dqlab_telco_final.csv')
+        
+        #Tampilkan bentuk dari dataset
+        print(df_load.shape)
+        
+        #Tampilkan 5 data teratas
+        print(df_load.head())
+        
+        #Tampilkan jumlah ID yang unik
+        print(df_load.customerID.nunique())
+
+(6950, 13)
+   UpdatedAt   customerID  gender  ... MonthlyCharges TotalCharges  Churn
+0     202006  45759018157  Female  ...          29.85        29.85     No
+1     202006  45315483266    Male  ...          20.50      1198.80     No
+2     202006  45236961615    Male  ...         104.10       541.90    Yes
+3     202006  45929827382  Female  ...         115.50      8312.75     No
+4     202006  45305082233  Female  ...          81.25      4620.40     No
+
+[5 rows x 13 columns]
+6950
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+
+#import matplotlib dan seaborn
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+In [1]: #import matplotlib dan seaborn
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+
+from matplotlib import pyplot as plt
+import numpy as np
+#Your codes here
+fig = plt.figure()
+ax = fig.add_axes([0,0,1,1])
+ax.axis('equal')
+labels = ['Yes','No']
+churn = df_load.churn.value_counts()
+ax.pie(churn, labels=labels, autopct='%.0f%%')
+plt.show()
+
+In [1]: from matplotlib import pyplot as plt
+        import numpy as np
+        #Your codes here
+        fig = plt.figure()
+        ax = fig.add_axes([0,0,1,1])
+        ax.axis('equal')
+        labels = ['Yes','No']
+        churn = df_load.churn.value_counts()
+        ax.pie(churn, labels=labels, autopct='%.0f%%')
+        plt.show()
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 10, in <module>
+  File "/usr/local/lib/python3.5/site-packages/pandas/core/generic.py", line 5067, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'DataFrame' object has no attribute 'churn'
+
+from matplotlib import pyplot as plt
+import numpy as np
+
+#creating bin in chart
+numerical_features = ['MonthlyCharges','TotalCharges','tenure']
+fig, ax = plt.subplots(1, 3, figsize=(15, 6))
+# Use the following code to plot two overlays of histogram per each numerical_features, use a color of blue and orange, respectively
+df_load[df_load.Churn == 'No'][numerical_features].hist(bins=20, color='blue', alpha=0.5, ax=ax)
+df_load[df_load.Churn == 'Yes'][numerical_features].hist(bins=20, color='orange', alpha=0.5, ax=ax)
+plt.show()
+
+from matplotlib import pyplot as plt
+import numpy as np
+import seaborn as sns
+sns.set(style='darkgrid')
+# Your code goes here
+fig, ax = plt.subplots(3, 3, figsize=(14, 12))
+sns.countplot(data=df_load, x='gender', hue='Churn', ax=ax[0][0])
+sns.countplot(data=df_load, x='Partner', hue='Churn', ax=ax[0][1])
+sns.countplot(data=df_load, x='SeniorCitizen', hue='Churn', ax=ax[0][2])
+sns.countplot(data=df_load, x='PhoneService', hue='Churn', ax=ax[1][0])
+sns.countplot(data=df_load, x='StreamingTV', hue='Churn', ax=ax[1][1])
+sns.countplot(data=df_load, x='InternetService', hue='Churn', ax=ax[1][2])
+sns.countplot(data=df_load, x='PaperlessBilling', hue='Churn', ax=ax[2][1])
+plt.tight_layout()
+plt.show()
+
+#Remove the unnecessary columns customerID & UpdatedAt
+cleaned_df = df_load.drop(['customerID','UpdatedAt'], axis=1)
+print(cleaned_df.head())
+
+In [1]: #Remove the unnecessary columns customerID & UpdatedAt
+        cleaned_df = df_load.drop(['customerID','UpdatedAt'], axis=1)
+        print(cleaned_df.head())
+
+   gender SeniorCitizen Partner  ...  MonthlyCharges TotalCharges Churn
+0  Female            No     Yes  ...           29.85        29.85    No
+1    Male            No     Yes  ...           20.50      1198.80    No
+2    Male            No      No  ...          104.10       541.90   Yes
+3  Female            No     Yes  ...          115.50      8312.75    No
+4  Female            No     Yes  ...           81.25      4620.40    No
+
+[5 rows x 11 columns]
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+
+from sklearn.preprocessing import LabelEncoder
+#Convert all the non-numeric columns to numerical data types
+for column in cleaned_df.columns:
+	if cleaned_df[column].dtype == np.number: continue
+# Perform encoding for each non-numeric column
+cleaned_df[column] = LabelEncoder().fit_transform(cleaned_df[column])
+print(cleaned_df.describe())
+
+In [1]: from sklearn.preprocessing import LabelEncoder
+        #Convert all the non-numeric columns to numerical data types
+        for column in cleaned_df.columns:
+        	if cleaned_df[column].dtype == np.number: continue
+        # Perform encoding for each non-numeric column
+        cleaned_df[column] = LabelEncoder().fit_transform(cleaned_df[column])
+        print(cleaned_df.describe())
+
+            tenure  MonthlyCharges  TotalCharges        Churn
+count  6950.000000     6950.000000   6950.000000  6950.000000
+mean     32.423165       64.992201   2286.058750     0.264173
+std      24.581073       30.032040   2265.702553     0.440923
+min       0.000000        0.000000     19.000000     0.000000
+25%       9.000000       36.462500    406.975000     0.000000
+50%      29.000000       70.450000   1400.850000     0.000000
+75%      55.000000       89.850000   3799.837500     1.000000
+max     124.000000      169.931250   8889.131250     1.000000
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+  
+  from sklearn.model_selection import train_test_split
+# Predictor dan target
+X = cleaned_df.drop('Churn', axis = 1)
+y = cleaned_df['Churn']
+# Splitting train and test
+x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+# Print according to the expected result
+print('Jumlah baris dan kolom dari x_train adalah:', x_train.shape,', sedangkan Jumlah baris dan kolom dari y_train adalah:', y_train.shape)
+print('Prosentase Churn di data Training adalah:')
+print(y_train.value_counts(normalize=True))
+print('Jumlah baris dan kolom dari x_test adalah:', x_test.shape,', sedangkan Jumlah baris dan kolom dari y_test adalah:', y_test.shape)
+print('Prosentase Churn di data Testing adalah:')
+print(y_test.value_counts(normalize=True))
+
+In [1]: from sklearn.model_selection import train_test_split
+        # Predictor dan target
+        X = cleaned_df.drop('Churn', axis = 1)
+        y = cleaned_df['Churn']
+        # Splitting train and test
+        x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+        # Print according to the expected result
+        print('Jumlah baris dan kolom dari x_train adalah:', x_train.shape,', sedangkan Jumlah baris dan kolom dari y_train adalah:', y_train.shape)
+        print('Prosentase Churn di data Training adalah:')
+        print(y_train.value_counts(normalize=True))
+        print('Jumlah baris dan kolom dari x_test adalah:', x_test.shape,', sedangkan Jumlah baris dan kolom dari y_test adalah:', y_test.shape)
+        print('Prosentase Churn di data Testing adalah:')
+        print(y_test.value_counts(normalize=True))
+
+Jumlah baris dan kolom dari x_train adalah: (4865, 10) , sedangkan Jumlah baris dan kolom dari y_train adalah: (4865,)
+Prosentase Churn di data Training adalah:
+0    0.734841
+1    0.265159
+Name: Churn, dtype: float64
+Jumlah baris dan kolom dari x_test adalah: (2085, 10) , sedangkan Jumlah baris dan kolom dari y_test adalah: (2085,)
+Prosentase Churn di data Testing adalah:
+0    0.738129
+1    0.261871
+Name: Churn, dtype: float64
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+  
+  from sklearn.linear_model import LogisticRegression
+log_model = LogisticRegression().fit(x_train, y_train)
+print('Model Logistic Regression yang terbentuk adalah: \n',log_model)
+
+In [1]: from sklearn.linear_model import LogisticRegression
+        log_model = LogisticRegression().fit(x_train, y_train)
+        print('Model Logistic Regression yang terbentuk adalah: \n',log_model)
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 4, in <module>
+  File "/usr/local/lib/python3.5/site-packages/sklearn/linear_model/logistic.py", line 1220, in fit
+    order="C")
+  File "/usr/local/lib/python3.5/site-packages/sklearn/utils/validation.py", line 573, in check_X_y
+    ensure_min_features, warn_on_dtype, estimator)
+  File "/usr/local/lib/python3.5/site-packages/sklearn/utils/validation.py", line 433, in check_array
+    array = np.array(array, dtype=dtype, order=order, copy=copy)
+    
+    from sklearn.metrics import classification_report
+# Predict
+y_train_pred = log_model.predict(x_train)
+# Print classification report 
+print('Classification Report Training Model (Logistic Regression) :')
+print(classification_report(y_train, y_train_pred))
+
+In [1]: from sklearn.metrics import classification_report
+        # Predict
+        y_train_pred = log_model.predict(x_train)
+        # Print classification report 
+        print('Classification Report Training Model (Logistic Regression) :')
+        print(classification_report(y_train, y_train_pred))
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+NameError: name 'log_model' is not defined
+
+from sklearn.metrics import confusion_matrix
+from matplotlib import pyplot as plt
+import seaborn as sns
+
+# Form confusion matrix as a DataFrame
+confusion_matrix_df = pd.DataFrame((confusion_matrix(y_train, y_train_pred)), ('No churn', 'Churn'), ('No churn', 'Churn'))
+
+# Plot confusion matrix
+plt.figure()
+heatmap = sns.heatmap(confusion_matrix_df, annot=True, annot_kws={'size': 14}, fmt='d', cmap='YlGnBu')
+heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+
+plt.title('Confusion Matrix for Training Model\n(Logistic Regression)', fontsize=18, color='darkblue')
+plt.ylabel('True label', fontsize=14)
+plt.xlabel('Predicted label', fontsize=14)
+plt.show()
+
+In [1]: from sklearn.metrics import confusion_matrix
+        from matplotlib import pyplot as plt
+        import seaborn as sns
+        
+        # Form confusion matrix as a DataFrame
+        confusion_matrix_df = pd.DataFrame((confusion_matrix(y_train, y_train_pred)), ('No churn', 'Churn'), ('No churn', 'Churn'))
+        
+        # Plot confusion matrix
+        plt.figure()
+        heatmap = sns.heatmap(confusion_matrix_df, annot=True, annot_kws={'size': 14}, fmt='d', cmap='YlGnBu')
+        heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+        heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+        
+        plt.title('Confusion Matrix for Training Model\n(Logistic Regression)', fontsize=18, color='darkblue')
+        plt.ylabel('True label', fontsize=14)
+        plt.xlabel('Predicted label', fontsize=14)
+        plt.show()
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 8, in <module>
+NameError: name 'y_train_pred' is not defined
+
+from sklearn.metrics import classification_report
+# Predict
+y_test_pred = log_model.predict(x_test)
+# Print classification report 
+print('Classification Report Testing Model (Logistic Regression):')
+print(classification_report(y_test, y_test_pred))
+
+In [1]: from sklearn.metrics import classification_report
+        # Predict
+        y_test_pred = log_model.predict(x_test)
+        # Print classification report 
+        print('Classification Report Testing Model (Logistic Regression):')
+        print(classification_report(y_test, y_test_pred))
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+NameError: name 'log_model' is not defined
+
+from sklearn.metrics import confusion_matrix
+from matplotlib import pyplot as plt
+import seaborn as sns
+
+# Form confusion matrix as a DataFrame
+confusion_matrix_df = pd.DataFrame((confusion_matrix(y_test, y_test_pred)), ('No churn', 'Churn'), ('No churn', 'Churn'))
+
+# Plot confusion matrix
+plt.figure()
+heatmap = sns.heatmap(confusion_matrix_df, annot=True, annot_kws={'size': 14}, fmt='d', cmap='YlGnBu')
+heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+
+plt.title('Confusion Matrix for Testing Model\n(Logistic Regression)\n', fontsize=18, color='darkblue')
+plt.ylabel('True label', fontsize=14)
+plt.xlabel('Predicted label', fontsize=14)
+plt.show()
+
+In [1]: from sklearn.metrics import confusion_matrix
+        from matplotlib import pyplot as plt
+        import seaborn as sns
+        
+        # Form confusion matrix as a DataFrame
+        confusion_matrix_df = pd.DataFrame((confusion_matrix(y_test, y_test_pred)), ('No churn', 'Churn'), ('No churn', 'Churn'))
+        
+        # Plot confusion matrix
+        plt.figure()
+        heatmap = sns.heatmap(confusion_matrix_df, annot=True, annot_kws={'size': 14}, fmt='d', cmap='YlGnBu')
+        heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+        heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+        
+        plt.title('Confusion Matrix for Testing Model\n(Logistic Regression)\n', fontsize=18, color='darkblue')
+        plt.ylabel('True label', fontsize=14)
+        plt.xlabel('Predicted label', fontsize=14)
+        plt.show()
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 8, in <module>
+NameError: name 'y_test_pred' is not defined
+
+from sklearn.ensemble import RandomForestClassifier
+#Train the model
+rdf_model = RandomForestClassifier().fit(x_train, y_train)
+print(rdf_model)
+
+In [1]: from sklearn.ensemble import RandomForestClassifier
+        #Train the model
+        rdf_model = RandomForestClassifier().fit(x_train, y_train)
+        print(rdf_model)
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+  File "/usr/local/lib/python3.5/site-packages/sklearn/ensemble/forest.py", line 247, in fit
+    X = check_array(X, accept_sparse="csc", dtype=DTYPE)
+  File "/usr/local/lib/python3.5/site-packages/sklearn/utils/validation.py", line 433, in check_array
+    array = np.array(array, dtype=dtype, order=order, copy=copy)
+ValueError: could not convert string to float: 'Female'
+
+from sklearn.metrics import classification_report
+y_train_pred = rdf_model.predict(x_train)
+print('Classification Report Training Model (Random Forest):')
+print(classification_report(y_train, y_train_pred))
+
+In [1]: from sklearn.metrics import classification_report
+        y_train_pred = rdf_model.predict(x_train)
+        print('Classification Report Training Model (Random Forest):')
+        print(classification_report(y_train, y_train_pred))
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 4, in <module>
+NameError: name 'rdf_model' is not defined
+
+from sklearn.metrics import confusion_matrix
+from matplotlib import pyplot as plt
+import seaborn as sns
+
+# Form confusion matrix as a DataFrame
+confusion_matrix_df = pd.DataFrame((confusion_matrix(y_train, y_train_pred)), ('No churn', 'Churn'), ('No churn', 'Churn'))
+
+# Plot confusion matrix
+plt.figure()
+heatmap = sns.heatmap(confusion_matrix_df, annot=True, annot_kws={'size': 14}, fmt='d', cmap='YlGnBu')
+heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+
+plt.title('Confusion Matrix for Training Model\n(Random Forest)', fontsize=18, color='darkblue')
+plt.ylabel('True label', fontsize=14)
+plt.xlabel('Predicted label', fontsize=14)
+plt.show()
+
+In [1]: from sklearn.metrics import confusion_matrix
+        from matplotlib import pyplot as plt
+        import seaborn as sns
+        
+        # Form confusion matrix as a DataFrame
+        confusion_matrix_df = pd.DataFrame((confusion_matrix(y_train, y_train_pred)), ('No churn', 'Churn'), ('No churn', 'Churn'))
+        
+        # Plot confusion matrix
+        plt.figure()
+        heatmap = sns.heatmap(confusion_matrix_df, annot=True, annot_kws={'size': 14}, fmt='d', cmap='YlGnBu')
+        heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+        heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+        
+        plt.title('Confusion Matrix for Training Model\n(Random Forest)', fontsize=18, color='darkblue')
+        plt.ylabel('True label', fontsize=14)
+        plt.xlabel('Predicted label', fontsize=14)
+        plt.show()
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 8, in <module>
+NameError: name 'y_train_pred' is not defined
+
+from sklearn.metrics import classification_report
+# Predict
+y_test_pred = rdf_model .predict(x_test)
+# Print classification report 
+print('Classification Report Testing Model (Random Forest Classifier):')
+print(classification_report(y_test, y_test_pred))
+
+In [1]: from sklearn.metrics import classification_report
+        # Predict
+        y_test_pred = rdf_model .predict(x_test)
+        # Print classification report 
+        print('Classification Report Testing Model (Random Forest Classifier):')
+        print(classification_report(y_test, y_test_pred))
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+NameError: name 'rdf_model' is not defined
+
+from sklearn.metrics import confusion_matrix
+from matplotlib import pyplot as plt
+import seaborn as sns
+
+# Form confusion matrix as a DataFrame
+confusion_matrix_df = pd.DataFrame((confusion_matrix(y_test, y_test_pred)), ('No churn', 'Churn'), ('No churn', 'Churn'))
+
+# Plot confusion matrix
+plt.figure()
+heatmap = sns.heatmap(confusion_matrix_df, annot=True, annot_kws={'size': 14}, fmt='d', cmap='YlGnBu')
+heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+
+plt.title('Confusion Matrix for Testing Model\n(Random Forest)\n', fontsize=18, color='darkblue')
+plt.ylabel('True label', fontsize=14)
+plt.xlabel('Predicted label', fontsize=14)
+plt.show()
+
+In [1]: from sklearn.metrics import confusion_matrix
+        from matplotlib import pyplot as plt
+        import seaborn as sns
+        
+        # Form confusion matrix as a DataFrame
+        confusion_matrix_df = pd.DataFrame((confusion_matrix(y_test, y_test_pred)), ('No churn', 'Churn'), ('No churn', 'Churn'))
+        
+        # Plot confusion matrix
+        plt.figure()
+        heatmap = sns.heatmap(confusion_matrix_df, annot=True, annot_kws={'size': 14}, fmt='d', cmap='YlGnBu')
+        heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+        heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+        
+        plt.title('Confusion Matrix for Testing Model\n(Random Forest)\n', fontsize=18, color='darkblue')
+        plt.ylabel('True label', fontsize=14)
+        plt.xlabel('Predicted label', fontsize=14)
+        plt.show()
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 8, in <module>
+NameError: name 'y_test_pred' is not defined
+
+from sklearn.ensemble import GradientBoostingClassifier
+#Train the model
+gbt_model = GradientBoostingClassifier().fit(x_train, y_train)
+print(gbt_model)
+
+In [1]: from sklearn.ensemble import GradientBoostingClassifier
+        #Train the model
+        gbt_model = GradientBoostingClassifier().fit(x_train, y_train)
+        print(gbt_model)
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+  File "/usr/local/lib/python3.5/site-packages/sklearn/ensemble/gradient_boosting.py", line 979, in fit
+    X, y = check_X_y(X, y, accept_sparse=['csr', 'csc', 'coo'], dtype=DTYPE)
+  File "/usr/local/lib/python3.5/site-packages/sklearn/utils/validation.py", line 573, in check_X_y
+    ensure_min_features, warn_on_dtype, estimator)
+  File "/usr/local/lib/python3.5/site-packages/sklearn/utils/validation.py", line 433, in check_array
+    array = np.array(array, dtype=dtype, order=order, copy=copy)
+ValueError: could not convert string to float: 'Female'
+
+from sklearn.metrics import classification_report
+# Predict
+y_train_pred = gbt_model.predict(x_train)
+# Print classification report 
+print('Classification Report Training Model (Gradient Boosting):')
+print(classification_report(y_train, y_train_pred))
+
+In [1]: from sklearn.metrics import classification_report
+        # Predict
+        y_train_pred = gbt_model.predict(x_train)
+        # Print classification report 
+        print('Classification Report Training Model (Gradient Boosting):')
+        print(classification_report(y_train, y_train_pred))
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+NameError: name 'gbt_model' is not defined
+
+from sklearn.metrics import confusion_matrix
+from matplotlib import pyplot as plt
+import seaborn as sns
+
+# Form confusion matrix as a DataFrame
+confusion_matrix_df = pd.DataFrame((confusion_matrix(y_train, y_train_pred)), ('No churn', 'Churn'), ('No churn', 'Churn'))
+
+# Plot confusion matrix
+plt.figure()
+heatmap = sns.heatmap(confusion_matrix_df, annot=True, annot_kws={'size': 14}, fmt='d', cmap='YlGnBu')
+heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+
+plt.title('Confusion Matrix for Training Model\n(Gradient Boosting)', fontsize=18, color='darkblue')
+plt.ylabel('True label', fontsize=14)
+plt.xlabel('Predicted label', fontsize=14)
+plt.show()
+
+In [1]: from sklearn.metrics import confusion_matrix
+        from matplotlib import pyplot as plt
+        import seaborn as sns
+        
+        # Form confusion matrix as a DataFrame
+        confusion_matrix_df = pd.DataFrame((confusion_matrix(y_train, y_train_pred)), ('No churn', 'Churn'), ('No churn', 'Churn'))
+        
+        # Plot confusion matrix
+        plt.figure()
+        heatmap = sns.heatmap(confusion_matrix_df, annot=True, annot_kws={'size': 14}, fmt='d', cmap='YlGnBu')
+        heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+        heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+        
+        plt.title('Confusion Matrix for Training Model\n(Gradient Boosting)', fontsize=18, color='darkblue')
+        plt.ylabel('True label', fontsize=14)
+        plt.xlabel('Predicted label', fontsize=14)
+        plt.show()
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 8, in <module>
+NameError: name 'y_train_pred' is not defined
+
+from sklearn.metrics import classification_report
+# Predict
+y_test_pred =  gbt_model.predict(x_test)
+# Print classification report 
+print('Classification Report Testing Model (Gradient Boosting):')
+print(classification_report(y_test, y_test_pred))
+
+In [1]: from sklearn.metrics import classification_report
+        # Predict
+        y_test_pred =  gbt_model.predict(x_test)
+        # Print classification report 
+        print('Classification Report Testing Model (Gradient Boosting):')
+        print(classification_report(y_test, y_test_pred))
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+NameError: name 'gbt_model' is not defined
+
+from sklearn.metrics import confusion_matrix
+from matplotlib import pyplot as plt
+import seaborn as sns
+
+# Form confusion matrix as a DataFrame
+confusion_matrix_df = pd.DataFrame((confusion_matrix(y_test, y_test_pred)), ('No churn', 'Churn'), ('No churn', 'Churn'))
+
+# Plot confusion matrix
+plt.figure()
+heatmap = sns.heatmap(confusion_matrix_df, annot=True, annot_kws={'size': 14}, fmt='d', cmap='YlGnBu')
+heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+
+plt.title('Confusion Matrix for Testing Model\n(Gradient Boosting)', fontsize=18, color='darkblue')
+plt.ylabel('True label', fontsize=14)
+plt.xlabel('Predicted label', fontsize=14)
+plt.show()
+
+In [1]: from sklearn.metrics import confusion_matrix
+        from matplotlib import pyplot as plt
+        import seaborn as sns
+        
+        # Form confusion matrix as a DataFrame
+        confusion_matrix_df = pd.DataFrame((confusion_matrix(y_test, y_test_pred)), ('No churn', 'Churn'), ('No churn', 'Churn'))
+        
+        # Plot confusion matrix
+        plt.figure()
+        heatmap = sns.heatmap(confusion_matrix_df, annot=True, annot_kws={'size': 14}, fmt='d', cmap='YlGnBu')
+        heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+        heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=0, ha='right', fontsize=14)
+        
+        plt.title('Confusion Matrix for Testing Model\n(Gradient Boosting)', fontsize=18, color='darkblue')
+        plt.ylabel('True label', fontsize=14)
+        plt.xlabel('Predicted label', fontsize=14)
+        plt.show()
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 8, in <module>
+NameError: name 'y_test_pred' is not defined
+
+print(log_model)
+
+In [1]: print(log_model)
+
+/usr/local/lib/python3.5/site-packages/sklearn/ensemble/weight_boosting.py:29: DeprecationWarning: numpy.core.umath_tests is an internal NumPy module and should not be imported. It will be removed in a future NumPy release.
+  from numpy.core.umath_tests import inner1d
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+NameError: name 'log_model' is not defined

@@ -1,2 +1,2 @@
 # DQ-Weekend
-a combination about r programming
+this is a compilation between r programming and python programming
